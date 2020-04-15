@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="sbt: org.eclipse.jdt:core:3.1.1:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/AppData/Local/Coursier/cache/v1/https/repo1.maven.org/maven2/org/eclipse/jdt/core/3.1.1/core-3.1.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
