@@ -18,6 +18,25 @@ import java.io.FileNotFoundException;  // Import this class to handle errors
 
 public class KmerCountingJava {
 
+    public static class KmerMapper extends Mapper<Object, Text, Text, IntWritable> {
+
+        private final static IntWritable one = new IntWritable(1);
+        private Text word = new Text();
+
+        // Context is an output collection
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            String line = value.toString();
+            if (line.charAt(0) == '>') return;
+            if (line.length() > 9) {
+                for (int i = 0; i <= line.length() - 9; i++) {
+                    String token = line.substring(i, i + 9);
+                    word.set(token);
+                    context.write(word, one);
+                }
+            }
+        }
+    }
+
     public static class IntSumReducer
             extends Reducer<Text, IntWritable, Text, IntWritable> {
         private IntWritable result = new IntWritable();
@@ -60,22 +79,6 @@ public class KmerCountingJava {
         }
     }
 
-    public static class KmerMapper extends Mapper<Object, Text, Text, IntWritable> {
-
-        private final static IntWritable one = new IntWritable(1);
-        private Text word = new Text();
-
-        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            String line = value.toString();
-            if(line.length()>2){
-                for (int i = 0; i <line.length()-3 ; i++) {
-                    String token =line.substring(i,i+3);
-                    word.set(token);
-                    context.write(word,one);
-                }
-            }
-        }
-    }
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
@@ -89,25 +92,25 @@ public class KmerCountingJava {
         job.setReducerClass(KmerCountingJava.IntSumReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
-        FileInputFormat.addInputPath(job, new Path("input/3mer"));
-        FileOutputFormat.setOutputPath(job, new Path("output/3mer/java"));
+        FileInputFormat.addInputPath(job, new Path("input/9mer"));
+        FileOutputFormat.setOutputPath(job, new Path("output/9mer/java"));
         try {
 
-           job.waitForCompletion(true);
-            System.out.println(" cc");
+            job.waitForCompletion(true);
+
         } catch (Exception e) {
             System.out.println(" WordCount existed !");
         }
 
 
-        List<WordCountJava.Count> list3mer = new ArrayList<WordCountJava.Count>();
+        List<Kmer> list3mer = new ArrayList<>();
         try {
-            File myObj = new File("output/3mer/java/part-r-00000");
+            File myObj = new File("output/9mer/java/part-r-00000");
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
                 String[] temp = data.split("\t");
-                list3mer.add(new WordCountJava.Count(temp[0], Integer.parseInt(temp[1])));
+                list3mer.add(new Kmer(temp[0], Integer.parseInt(temp[1])));
             }
             myReader.close();
             Collections.sort(list3mer);
